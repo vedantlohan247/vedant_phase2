@@ -97,3 +97,39 @@ I also tried `grep -R -i "picoCTF" .` on the extracted files to get the flag.
 
 
 ***
+# 2. m00nwalk
+
+> Decode this message from the moon.
+
+## Solution:
+In this challenge we have to figure out the flag from an audio .wav file.
+From the first hint  
+```
+How did pictures from the moon landing get sent back to Earth?
+``` 
+we get that the audio file is an SSTV message
+1) To decode this SSTV message we use, [sstv decoder](https://sstv-decoder.mathieurenaud.fr/)
+2) We get the image which has the flag printed upside down.
+
+## Flag:
+
+```
+picoCTF{beep_boop_im_in_space}
+```
+
+## Concepts learnt:
+
+- SSTV
+SSTV is slow-scan Television, it is a method to transmit images over radio signals. This technique was used to send moon landing images to earth.
+
+## Notes:
+- I started by inspecting the audio file in `audacity`, trying to look into the spectrogram.
+- Tried `steghide`
+- used `cat` on the file, which messed up my terminal!
+
+## Resources:
+
+[sstv-decoder](https://sstv-decoder.mathieurenaud.fr/)
+
+
+***
