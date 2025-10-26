@@ -249,7 +249,7 @@ picoCTF{0000005a}
 
 # 3. Vault door 3
 
-> This vault uses for-loops and byte arrays. The source code for this vault is here: VaultDoor3.java
+> This vault uses for-loops and byte arrays. The source code for this vault is here: `VaultDoor3.java`
 
 ## Solution:
 In this challenge, we have been given a Java program which is a vault which opens when the correct password string is entered. We need to figure out that string to open the vault.
@@ -346,10 +346,11 @@ picoCTF{jU5t_a_s1mpl3_an4gr4m_4_u_c79a21}
 
 ## Notes:
 
-- I was making mistakes while reversing the logic, I tried to figure out and track each index which was very lenghty approach.
+- I was making mistakes while reversing the logic, I tried to figure out and track each index which was very lengthy approach.
 
 ## Resources:
 - my roommate who knows java
 
 
 ***
+
