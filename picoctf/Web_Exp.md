@@ -14,10 +14,10 @@ WHERE username = 'admin' -- ' AND password = 'whatever';
 ```  
 - filter for round 2, `or and like = --`  
 For this we type the username as `admin` and the password as `1' is not '2'`, in the query the password becomes `'1' is not '2'` which return true.  
-- filter for round 3 `or and = like > < --`
+- filter for round 3 `or and = like > < --`  
 The trick `a' is not 'b` doesn't work in this challenge, there might be a filter blocking it.
 So we use `admin';` , the `;` here end the statement, so it never checks the password.
-- filter for round 4 `or and = like > < -- admin`
+- filter for round 4 `or and = like > < -- admin`  
 For this round we are not allowed `admin` string, so we concatenate it using `||`,  
 `a'||'dmin';`
 - filter for round 4 `or and = like > < -- admin`  
@@ -47,7 +47,7 @@ The speial text that you put in to exploit the weakness
 - We can also use `/*` which is the multi line comment instead of `;` in some rounds.
 
 ## Resources:
-[SQL ref](https://www.w3schools.com/sql/sql_injection.asp)
+[SQL ref](https://www.w3schools.com/sql/sql_injection.asp)  
 [SQL injection](https://portswigger.net/support/sql-injection-bypassing-common-filters)
 
 ***
