@@ -109,3 +109,31 @@ It lets you create a dynamic webpage, means you can fill in some data in the sit
 
 
 ***
+
+# 3. Cookies
+
+> Who doesn't love cookies? Try to figure out the best one. http://mercury.picoctf.net:54219/
+
+## Solution:
+We open the cookies of the webpage by inspecting it, we see a cookie named `name` which was initially set to `0`, after typing in something invalid the cookie changed to `-1`  
+![test1](https://drive.google.com/uc?id=1akHDXtKpRABwTpHn8QNw7LPcwt-SWMIJ)  
+Trying different values for the cookie-  
+![test2](https://drive.google.com/uc?id=1Fqoh2epHk_L_MfOVOHJwvo2ebOVLHnIW)  
+Similarly trying out different values for the cookie gives us the flag at value `18`-  
+![flag](https://drive.google.com/uc?id=1JshMMqVyofdJdQQSl-ux7ZMgckaWO7QB)
+
+## Flag:
+
+```
+picoCTF{3v3ry1_l0v3s_c00k135_96cdadfd}
+```
+
+## Concepts learnt:
+- Cookies  
+They carry small pieces of data and basically helps the website remember info about you.
+
+## Resources:
+
+- [check cookies](https://www.cookieyes.com/blog/how-to-check-cookies-on-your-website-manually/#:~:text=Right%2Dclick%20and%20click%20on,shown%20on%20the%20blocked%20tab.)
+
+***
