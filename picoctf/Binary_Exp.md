@@ -263,7 +263,7 @@ ClaCla%sic_Che%s%steakic_Che(null)
 picoCTF{7h3_cu570m3r_15_n3v3r_SEGFAULT_63191ce6}
 ^C
 ```  
-Now the choice for patrick was  `Gr%114d_Cheese` because of the `%114d`, it makes a very long int and that in neseccary to pass the function check  
+Now the choice for patrick was  `Gr%114d_Cheese` because of the `%114d`, it makes a very long int and that is neseccary to pass the function check  
 ```c
 int count = printf(choice1);
         if (count > 2 * BUFSIZE) {
@@ -273,7 +273,7 @@ int count = printf(choice1);
 where `BUFSIZE` was `#define BUFSIZE 32`
 
 ## Resources:
-[scanf vs gets vs fgets](https://stackoverflow.com/questions/3302255/c-scanf-vs-gets-vs-fgets)
+[scanf vs gets vs fgets](https://stackoverflow.com/questions/3302255/c-scanf-vs-gets-vs-fgets)  
 [printf return value](https://www.geeksforgeeks.org/c/return-values-of-printf-and-scanf-in-c-cpp/)
 
 ***
