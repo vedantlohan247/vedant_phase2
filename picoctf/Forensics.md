@@ -134,4 +134,47 @@ SSTV is slow-scan Television, it is a method to transmit images over radio signa
 
 
 ***
+# 3. tunn3l v1s10n
+
+> We found this `file`. Recover the flag.
+
+## Solution:
+We have a file given.  
+```bash
+lallu@VedantLohan:~/picoctf/tunnel$ file tunn3l_v1s10n
+tunn3l_v1s10n: data
+lallu@VedantLohan:~/picoctf/tunnel$ less tunn3l_v1s10n
+"tunn3l_v1s10n" may be a binary file.  See it anyway?
+lallu@VedantLohan:~/picoctf/tunnel$
+```  
+On top of `less tunn3l_v1s10n` it says `BM`which probably means its a bitmap 
+This file doesn't seem to work properly so we open it in a hex editor.  
+We save it as a `.bmp` file but it doesn't seem to open.  
+To fix it we loot at bmp file's format.  
+![hex](https://drive.google.com/uc?id=14zxsQMIpdWg1oE5--ERwb7ZZjElOVRGc)  
+We fix the byte `0A` in the BMP header and `0E` in DIB header  
+![edited](https://drive.google.com/uc?id=1lDEMzH-VB3er57sT-pCigWx5VDKaoi4K)  
+![image](https://drive.google.com/uc?id=1-O74nWg4eVg81Q5o1fQnan0lg4xGuKZh)  
+We change `16`, `17`, `1A`, to change the resolution and height of the image.  
+![fixed hex](https://drive.google.com/uc?id=1haCcvz3Qdb6Qu9mfqAERZqNRFb6PSFW_)  
+![fixed_image](https://drive.google.com/uc?id=1UhSkiAa7Tlk1LxXA9e4JvdxWmnQG86DR)  
+
+## Flag:
+
+```
+picoCTF{qu1t3_a_v13w_2020}
+```
+
+## Concepts learnt:
+- BMP header is the header of a bmp file  
+- DIB header followed by the BMP header it contains important info about the image such as dimensions, colour etc.  
+
+## Notes:
+- Mistake I made was that I had set `16` too high.  
+
+## Resources:
+[hex editor](https://hhdsoftware.com/free-hex-editor)  
+[bmp format](https://en.wikipedia.org/wiki/BMP_file_format)
+
+***
 
