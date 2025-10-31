@@ -290,7 +290,8 @@ picoCTF{custom_d2cr0pt6d_66778b34}
 - I made the mistake that I did XOR before dividing numbers.
 
 ## Resources:
-![modular exp](https://www.dcode.fr/modular-exponentiation)
+[modular exp](https://www.dcode.fr/modular-exponentiation)
+
 
 
 ***
