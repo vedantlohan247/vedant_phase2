@@ -427,3 +427,36 @@ TFCCTF{Th1s_1s_som3_s1mpl3_4rdu1no_f1rmw4re}
 [chatgpt](https://chatgpt.com/) //to help understand the disassembly and instruction flow
 
 ***
+# 3. IQ test
+
+> let your input x = 30478191278.
+
+wrap your answer with nite{ } for the flag.
+
+As an example, entering x = 34359738368 gives (y0, ..., y11), so the flag would be nite{010000000011}.
+
+## Solution:
+We need to solve these logic gates to get the flag.  
+1) First we convert given x=`30478191278` to binary so we can input it.  
+```
+11100011000101001000100101010101110
+```
+![SOLUTION](https://drive.google.com/uc?id=1gglJC6t7g4HC-oNrzDLmuTP0hmm3GH7N)  
+
+## Flag:
+
+```
+nite{100010011000}
+```
+
+## Concepts learnt:
+keep trying
+
+## Notes:
+nada
+
+## Resources:
+nada
+
+
+***
