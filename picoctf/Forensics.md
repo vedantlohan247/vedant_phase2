@@ -154,10 +154,10 @@ To fix it we loot at bmp file's format.
 ![hex](https://drive.google.com/uc?id=14zxsQMIpdWg1oE5--ERwb7ZZjElOVRGc)  
 We fix the byte `0A` in the BMP header and `0E` in DIB header  
 ![edited](https://drive.google.com/uc?id=1lDEMzH-VB3er57sT-pCigWx5VDKaoi4K)  
-![image](https://drive.google.com/uc?id=1-O74nWg4eVg81Q5o1fQnan0lg4xGuKZh)  
+![image](https://drive.google.com/uc?id=1QJs4no_Ve24l5MmZkRP2MnDBtAHgRVlb)  
 We change `16`, `17`, `1A`, to change the resolution and height of the image.  
 ![fixed hex](https://drive.google.com/uc?id=1haCcvz3Qdb6Qu9mfqAERZqNRFb6PSFW_)  
-![fixed_image](https://drive.google.com/uc?id=1UhSkiAa7Tlk1LxXA9e4JvdxWmnQG86DR)  
+![fixed_image](https://drive.google.com/uc?id=18FzFWjkTLzma4Kd4qQliGTQu3zyf3Oss)  
 
 ## Flag:
 
